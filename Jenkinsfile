@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout Code') {
             steps {
-                git 'https://github.com/NUCESFAST/scd-final-lab-exam-Sohaib-Ahmed869.git'
+                git branch: 'master', url:'https://github.com/NUCESFAST/scd-final-lab-exam-Sohaib-Ahmed869.git'
             }
         }
 
@@ -18,19 +18,12 @@ pipeline {
                     // Login to Docker Hub
                     docker.withRegistry('https://index.docker.io/v1/', DOCKER_HUB_CREDENTIALS_ID) {
                         // Build the Docker images
-                        sh 'docker-compose build'
+                        bat 'docker-compose build'
                         // Push the Docker images to Docker Hub
-                        sh 'docker-compose push'
+                        bat 'docker-compose push'
                     }
                 }
             }
-        }
-    }
-
-    post {
-        always {
-            // Clean up Docker images and resources after building and pushing
-            sh 'docker-compose down --rmi all'
         }
     }
 }
