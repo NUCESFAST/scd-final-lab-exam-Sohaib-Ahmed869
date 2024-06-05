@@ -2,6 +2,9 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: my-deployment
+   labels:
+    environment: production
+    tier: backend and frontend
 spec:
   replicas: 3  # Number of replicas
   selector:
@@ -15,6 +18,13 @@ spec:
       containers:
       - name: auth
         image: sohaibsipra/exam:auth-service
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
         ports:
         - containerPort: 3114
         env:
@@ -22,8 +32,29 @@ spec:
           value: mongodb://mongo:27017/
         - name: EVENT_SERVICE_URI
           value: http://events:4009
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3114
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3114
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          periodSeconds: 5
       - name: classrooms
         image: sohaibsipra/exam:classroom-service
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
         ports:
         - containerPort: 3114
         env:
@@ -31,8 +62,29 @@ spec:
           value: mongodb://mongo:27017/
         - name: EVENT_SERVICE_URI
           value: http://events:4009
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3114
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3114
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          periodSeconds: 5
       - name: events
         image: sohaibsipra/exam:event-service
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
         ports:
         - containerPort: 3114
         env:
@@ -49,6 +101,20 @@ spec:
           value: mongodb://mongo:27017/
         - name: EVENT_SERVICE_URI
           value: http://events:4009
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3114
+          initialDelaySeconds: 15
+          timeoutSeconds: 2
+          periodSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3114
+          initialDelaySeconds: 5
+          timeoutSeconds: 2
+          periodSeconds: 5
       - name: client
         image: sohaibsipra/exam:client
         ports:
