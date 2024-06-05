@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 3  # Number of replicas
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - name: auth
+        image: sohaibsipra/exam:auth-service
+        ports:
+        - containerPort: 3114
+        env:
+        - name: MONGO_URI
+          value: mongodb://mongo:27017/
+        - name: EVENT_SERVICE_URI
+          value: http://events:4009
+      - name: classrooms
+        image: sohaibsipra/exam:classroom-service
+        ports:
+        - containerPort: 3114
+        env:
+        - name: MONGO_URI
+          value: mongodb://mongo:27017/
+        - name: EVENT_SERVICE_URI
+          value: http://events:4009
+      - name: events
+        image: sohaibsipra/exam:event-service
+        ports:
+        - containerPort: 3114
+        env:
+        - name: MONGO_URI
+          value: mongodb://mongo:27017/
+        - name: EVENT_SERVICE_URI
+          value: http://events:4009
+      - name: post
+        image: sohaibsipra/exam:post-service
+        ports:
+        - containerPort: 3114
+        env:
+        - name: MONGO_URI
+          value: mongodb://mongo:27017/
+        - name: EVENT_SERVICE_URI
+          value: http://events:4009
+      - name: client
+        image: sohaibsipra/exam:client
+        ports:
+        - containerPort: 1114
+        env:
+        - name: REACT_APP_AUTH_URL
+          value: http://auth:4000
+        - name: REACT_APP_CLASSROOMS_URL
+          value: http://classrooms:4001
+        - name: REACT_APP_EVENTS_URL
+          value: http://events:4002
+        - name: REACT_APP_POSTS_URL
+          value: http://post:4003
+      - name: mongo
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
+      volumes:
+      - name: mongo-data
+        emptyDir: {}
